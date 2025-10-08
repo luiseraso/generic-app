@@ -19,9 +19,8 @@ import com.example.di.repositories.UserRepository;
 import com.github.javafaker.Faker;
 
 @SpringBootApplication
-public class UsersAppApplication implements ApplicationRunner{
+public class Application implements ApplicationRunner{
 
-	
 	@Autowired
 	private Faker faker;
 	
@@ -34,11 +33,10 @@ public class UsersAppApplication implements ApplicationRunner{
 	@Autowired
 	private UserInRoleRepository userInRoleRepository;
 	
-	private static final Logger log = LoggerFactory.getLogger(UsersAppApplication.class);
-	
-	
+	private static final Logger log = LoggerFactory.getLogger(Application.class);
+
 	public static void main(String[] args) {
-		SpringApplication.run(UsersAppApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 	@Override
