@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +18,6 @@ import com.example.di.models.AuditDetails;
 import com.example.di.models.Devs4jSecurityRule;
 import com.example.di.repositories.RoleRepository;
 import com.example.di.repositories.UserInRoleRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @Devs4jSecurityRule
@@ -31,11 +28,9 @@ public class RoleService {
 	
 	@Autowired
 	private UserInRoleRepository inRoleRepository;
-	
+
 	@Autowired
-	private KafkaTemplate<Integer, String> kafkaTemplate;
-	
-	private ObjectMapper mapper = new ObjectMapper();
+	private EventService eventService;
 	
 	private static final Logger log = LoggerFactory.getLogger(RoleService.class);
 	
@@ -53,12 +48,7 @@ public class RoleService {
 	public Role createRole(Role role) {
 		Role roleCreated = repository.save(role);
 		AuditDetails details = new AuditDetails(SecurityContextHolder.getContext().getAuthentication().getName(), role.getName());
-		try {
-			kafkaTemplate.send("devs4j-topic",mapper.writeValueAsString(details));
-		} catch (JsonProcessingException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error parsing the message");
-		}
-		
+		eventService.sendAuditDetails(details);
 		return roleCreated;
 	}
 	
