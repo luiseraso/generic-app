@@ -15,13 +15,17 @@ public class EventService {
     private static final Logger log = LoggerFactory.getLogger(EventService.class);
     private static final String AUDIT_TOPIC = "devs4j-topic";
 
-    @Autowired(required = false)
-    private KafkaTemplate<Integer, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final boolean kafkaEnabled;
 
     private final ObjectMapper mapper = new ObjectMapper();
-    
-    @Value("${application.kafka.enabled:false}")
-    public boolean kafkaEnabled;
+
+    public EventService(
+            @Autowired(required = false) KafkaTemplate<String, String> kafkaTemplate,
+            @Value("${application.kafka.enabled:false}") boolean kafkaEnabled) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaEnabled = kafkaEnabled;
+    }
     
     public void sendAuditDetails(AuditDetails details) {
         try {
